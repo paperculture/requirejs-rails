@@ -155,6 +155,7 @@ OS X Homebrew users can use 'brew install node'.
         digest_name = asset.logical_path.gsub(path_extension_pattern) { |ext| "-#{hex_digest}#{ext}" }
 
         digest_asset_path = requirejs.config.target_dir + digest_name
+        non_digest_asset_path = requirejs.config.target_dir + asset_name
 
         # Ensure that the parent directory `a/b` for modules with names like `a/b/c` exist.
         digest_asset_path.dirname.mkpath
@@ -169,6 +170,10 @@ OS X Homebrew users can use 'brew install node'.
           zgw.close
         end
         FileUtils.cp "#{built_asset_path}.gz", "#{digest_asset_path}.gz"
+
+        # Copy non digest versions too
+        FileUtils.cp built_asset_path, non_digest_asset_path
+        FileUtils.cp "#{built_asset_path}.gz", "#{non_digest_asset_path}.gz"
 
         requirejs.config.manifest_path.open('wb') do |f|
           YAML.dump(requirejs.manifest, f)
