@@ -81,10 +81,15 @@ module RequirejsHelper
           run_config["paths"] = paths
         end
 
-        run_config["baseUrl"] = base_url(name)
+        run_config['baseUrl'] = base_url(name)
+
+        # Detect functions in JSON and unescape them so they can be evaluated by RequireJS
+        run_config_json = run_config.to_json.gsub(/"(function\(.*?\)\s*?{.*?}[\s\\n]*)"/) do |f|
+          eval(f).strip.delete("\n")
+        end
 
         html.concat(content_tag(:script) do
-          script = "require.config(#{run_config.to_json});"
+          script = "require.config(#{run_config_json});"
 
           # Pass an array to `require`, since it's a top-level module about to be loaded asynchronously (see
           # `http://requirejs.org/docs/errors.html#notloaded`).
