@@ -160,5 +160,9 @@ module Requirejs
         return binding()
       end
     end
+
+    def asset_precompiled?(logical_path, pathname)
+      Sprockets::Rails::Helper.assets.send(:matches_filter, Sprockets::Rails::Helper.precompile || [], logical_path, pathname)
+    end
   end
 end

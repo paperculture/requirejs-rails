@@ -54,6 +54,7 @@ namespace :requirejs do
     # Preserve the original asset paths, as we'll be manipulating them later
     requirejs.env_paths = requirejs.env.paths.dup
     requirejs.config = Rails.application.config.requirejs
+    requirejs.assets = Rails.application.config.assets
     requirejs.builder = Requirejs::Rails::Builder.new(requirejs.config)
     requirejs.manifest = {}
   end
@@ -88,12 +89,13 @@ OS X Homebrew users can use 'brew install node'.
                           "requirejs:clean"] do
       requirejs.config.source_dir.mkpath
 
+      js_compressor = Sprockets::Rails::Helper.assets.js_compressor
       requirejs.env.each_logical_path(requirejs.config.logical_path_patterns) do |logical_path|
         m = ::Requirejs::Rails::Config::BOWER_PATH_PATTERN.match(logical_path)
 
         if !m
+          Sprockets::Rails::Helper.assets.js_compressor = requirejs.config.asset_precompiled?(logical_path, logical_path) ? js_compressor : false
           asset = requirejs.env.find_asset(logical_path)
-
           if asset
             file = requirejs.config.source_dir.join(asset.logical_path)
             file.dirname.mkpath
@@ -110,6 +112,8 @@ OS X Homebrew users can use 'brew install node'.
           end
         end
       end
+      # Revert to original js_compressor so Sprokets can use it
+      Sprockets::Rails::Helper.assets.js_compressor = js_compressor
     end
 
     task generate_rjs_driver: ["requirejs:setup"] do

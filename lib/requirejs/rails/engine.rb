@@ -9,7 +9,6 @@ module Requirejs
       config.before_configuration do |app|
         config.requirejs = Requirejs::Rails::Config.new(app)
         config.requirejs.precompile = [/require\.js$/]
-        config.requirejs.sprokets_js_compression = false
       end
 
       config.before_initialize do |app|
@@ -63,12 +62,6 @@ module Requirejs
           app.configure do
             # If we don't set this to true, sprockets-rails will assign `Rails.application.assets` to `nil`.
             config.assets.compile = true
-
-            # Allow us to skip disabling JS compression
-            unless config.requirejs.sprokets_js_compression
-              # Don't compress JavaScripts fed into the r.js optimizer.
-              config.assets.js_compressor = false
-            end
 
             # Don't use any cache to retrieve assets.
             config.assets.cache = nil
