@@ -9,6 +9,9 @@ require "requirejs/rails/builder"
 require "requirejs/rails/config"
 
 namespace :requirejs do
+
+  logger = Logger.new(STDOUT)
+
   # This method was backported from an earlier version of Sprockets.
   def ruby_rake_task(task, force = true)
     env = ENV["RAILS_ENV"] || "production"
@@ -88,12 +91,14 @@ OS X Homebrew users can use 'brew install node'.
     task prepare_source: ["requirejs:setup",
                           "requirejs:clean"] do
       requirejs.config.source_dir.mkpath
+      logger.info "Preparing source files for r.js in #{requirejs.config.source_dir}"
 
       js_compressor = Sprockets::Rails::Helper.assets.js_compressor
       requirejs.env.each_logical_path(requirejs.config.logical_path_patterns) do |logical_path|
         m = ::Requirejs::Rails::Config::BOWER_PATH_PATTERN.match(logical_path)
 
         if !m
+          logger.info "Preparing #{logical_path}"
           Sprockets::Rails::Helper.assets.js_compressor = requirejs.config.asset_precompiled?(logical_path, logical_path) ? js_compressor : false
           asset = requirejs.env.find_asset(logical_path)
           if asset
@@ -137,6 +142,7 @@ OS X Homebrew users can use 'brew install node'.
     # Copy each built asset, identified by a named module in the
     # build config, to its Sprockets digestified name.
     task digestify_and_compress: ["requirejs:precompile:run_rjs"] do
+      logger.info "Digestify and compress assets optimized with r.js"
       requirejs.config.build_config["modules"].each do |m|
         module_name = requirejs.config.module_name_for(m)
         paths = requirejs.config.build_config["paths"] || {}
@@ -150,7 +156,6 @@ OS X Homebrew users can use 'brew install node'.
         end
 
         asset = requirejs.env.find_asset(asset_name)
-
         built_asset_path = requirejs.config.build_dir.join(asset_name)
 
         # Compute the digest based on the contents of the compiled file, *not* on the contents of the RequireJS module.
@@ -165,6 +170,7 @@ OS X Homebrew users can use 'brew install node'.
         digest_asset_path.dirname.mkpath
 
         requirejs.manifest[module_script_name] = digest_name
+        logger.info "Writing #{digest_asset_path}"
         FileUtils.cp built_asset_path, digest_asset_path
 
         # Create the compressed versions
