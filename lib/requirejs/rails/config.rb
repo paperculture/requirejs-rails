@@ -71,10 +71,12 @@ module Requirejs
         dir
         fileExclusionRegExp
         findNestedDependencies
+        generateSourceMaps
         has
         hasOnSave
         include
         inlineText
+        keepBuildDir
         locale
         mainConfigFile
         map
@@ -83,6 +85,7 @@ module Requirejs
         namespace
         onBuildRead
         onBuildWrite
+        onModuleBundleComplete
         optimize
         optimizeAllPluginResources
         optimizeCss
@@ -94,6 +97,7 @@ module Requirejs
         pragmasOnSave
         preserveLicenseComments
         shim
+        skipDirOptimize
         skipModuleInsertion
         skipPragmas
         uglify
