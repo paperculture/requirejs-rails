@@ -62,7 +62,13 @@ module Requirejs
         xhtml
       }
 
-        self.build_config_whitelist = %w{
+      # Bundles are useful once all files are built by r.js, but in development bundles will break
+      # the app since it assumes that the bundles are already built.
+      if ::Rails.env.production?
+        self.run_config_whitelist.push 'bundles'
+      end
+
+      self.build_config_whitelist = %w{
         appDir
         baseUrl
         closure
