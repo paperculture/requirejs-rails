@@ -1,0 +1,3 @@
+<%# Allows us to use a helper method from the requirejs-rails gem from within the asset pipeline %>
+<% environment.context_class.instance_eval { include RequirejsHelper } %>
+var require = <%= requirejs_run_config_json %>;
