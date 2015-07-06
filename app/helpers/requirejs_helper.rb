@@ -29,7 +29,7 @@ module RequirejsHelper
 
     once_guard do
       rjs_attributes = {
-          src: javascript_path("require")
+          src: javascript_path("bootstrapper")
       }
 
       rjs_attributes = rjs_attributes.merge(Hash[block.call(controller).map do |key, value|

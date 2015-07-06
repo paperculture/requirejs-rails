@@ -8,7 +8,12 @@ module Requirejs
       ### Configuration setup
       config.before_configuration do |app|
         config.requirejs = Requirejs::Rails::Config.new(app)
+<<<<<<< HEAD
         config.requirejs.precompile = [/require\.js$/]
+=======
+        config.requirejs.precompile = [/bootstrapper\.js$/]
+        config.requirejs.sprokets_js_compression = false
+>>>>>>> 0dfd7e4... Add bootstrapper.js and requirejs_run_config_json helper
       end
 
       config.before_initialize do |app|
