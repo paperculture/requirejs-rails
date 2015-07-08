@@ -66,6 +66,12 @@ module RequirejsHelper
     html = ""
 
     _once_guard do
+      unless requirejs.run_config.empty?
+        html.concat <<-HTML
+        <script>var require = #{requirejs_run_config_json(name)};</script>
+        HTML
+      end
+
       html.concat <<-HTML
       <script #{_requirejs_data(name, &block)} src="#{_javascript_path 'bootstrapper.js'}"></script>
       HTML
