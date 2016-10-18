@@ -1,6 +1,7 @@
 var requirejs = require(<%= rjs_path.to_s.dump %>)
 var baseConfig = <%=
-cdn_pattern = Regexp.new("\\Ahttps?://")
+# Don't bundle / optimize any CDN (external) URLs or any resource under /api/
+cdn_pattern = Regexp.new("\\A(https?://|/api/)")
 
 modifiedHash = build_config.select { |k, _| k != "modules" }
 pathsHash = modifiedHash["paths"]

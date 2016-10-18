@@ -70,9 +70,9 @@ module RequirejsHelper
           end
 
           if run_config.has_key? "paths"
-            # Add paths for assets specified by full URL (on a CDN)
+            # Add paths for assets specified by full URL (on a CDN) or any resource under /api/
             run_config["paths"].each do |k, v|
-              paths[k] = v if v.is_a?(Array) || v =~ /^(https?:)?\/\//
+              paths[k] = v if v.is_a?(Array) || v =~ /^((https?:)?\/\/|\/api\/)/
             end
           end
 
