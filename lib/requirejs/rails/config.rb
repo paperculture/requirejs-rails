@@ -106,6 +106,7 @@ module Requirejs
         skipDirOptimize
         skipModuleInsertion
         skipPragmas
+        stubModules
         uglify
         uglify2
         useStrict
