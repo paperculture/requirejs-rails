@@ -93,6 +93,7 @@ module Requirejs::Rails
         skipDirOptimize
         skipModuleInsertion
         skipPragmas
+        stubModules
         uglify
         uglify2
         useStrict
