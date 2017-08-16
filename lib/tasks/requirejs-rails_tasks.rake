@@ -4,6 +4,7 @@ require "tempfile"
 
 require "active_support/ordered_options"
 require "sprockets"
+require "sprockets/compressing"
 
 require "requirejs/rails/builder"
 require "requirejs/rails/config"
@@ -95,6 +96,16 @@ OS X Homebrew users can use 'brew install node'.
       requirejs.config.source_dir.mkpath
       logger.info "Preparing source files for r.js in #{requirejs.config.source_dir}"
 
+      original_js_compressor = requirejs.env.js_compressor
+      requirejs.env.js_compressor = false
+
+      # js_compressor = Sprockets::Rails::Helper.assets.js_compressor
+      # js_compressor = Rails.application.config.assets.js_compressor
+      # sprockets_js_compressor = js_compressor
+      # puts sprockets_js_compressor
+
+      original_cache = requirejs.env.cache
+      requirejs.env.cache = nil
 
       if ::Sprockets::VERSION.split(".").first.to_i < 3
         # Sprockets 2.x
@@ -102,6 +113,9 @@ OS X Homebrew users can use 'brew install node'.
           m = ::Requirejs::Rails::Config::BOWER_PATH_PATTERN.match(logical_path)
 
           if !m
+            logger.info "Preparing #{asset_logical_path}"
+            # Sprockets::Rails::Helper.assets.js_compressor = Rails.application.config.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
+            # Rails.application.config.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
             asset = requirejs.env.find_asset(logical_path)
 
             if asset
@@ -131,6 +145,9 @@ OS X Homebrew users can use 'brew install node'.
               puts "Found logical match: #{asset_logical_path}"
               m = ::Requirejs::Rails::Config::BOWER_PATH_PATTERN.match(asset_logical_path)
               if !m
+                logger.info "Preparing #{asset_logical_path}"
+                # Sprockets::Rails::Helper.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
+                # Rails.application.config.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
                 target_file = requirejs.config.source_dir.join(asset_logical_path)
                 puts "Copying js file #{target_file}"
                 asset.write_to(target_file)
@@ -146,7 +163,12 @@ OS X Homebrew users can use 'brew install node'.
         end
       end
       # Revert to original js_compressor so Sprokets can use it
-      Sprockets::Rails::Helper.assets.js_compressor = js_compressor
+      # Sprockets::Rails::Helper.assets.js_compressor = js_compressor
+      # Rails.application.config.assets.js_compressor = js_compressor
+
+      # Restore the original JS compressor and cache.
+      requirejs.env.js_compressor = original_js_compressor
+      requirejs.env.cache = original_cache
     end
 
     task generate_rjs_driver: ["requirejs:setup"] do
@@ -193,7 +215,8 @@ OS X Homebrew users can use 'brew install node'.
         # file_digest = requirejs.env.file_digest(built_asset_path.to_s)
         # hex_digest = file_digest.unpack("H*").first
         hex_digest = requirejs.sprockets.pack_hexdigest(requirejs.sprockets.digest_class.digest(built_asset_path.to_s))
-        digest_name = asset.logical_path.gsub(path_extension_pattern) { |ext| "-#{hex_digest}#{ext}" }
+        # digest_name = asset.logical_path.gsub(path_extension_pattern) { |ext| "-#{hex_digest}#{ext}" }
+        digest_name = asset_name.gsub(path_extension_pattern) { |ext| "-#{hex_digest}#{ext}" }
 
         digest_asset_path = requirejs.config.target_dir + digest_name
         non_digest_asset_path = requirejs.config.target_dir + asset_name
@@ -221,7 +244,6 @@ OS X Homebrew users can use 'brew install node'.
         if requirejs.config.build_config['generateSourceMaps']
           FileUtils.cp "#{built_asset_path}.map", "#{non_digest_asset_path}.map"
         end
-
         requirejs.config.manifest_path.open('wb') do |f|
           YAML.dump(requirejs.manifest, f)
         end
