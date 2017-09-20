@@ -96,13 +96,8 @@ OS X Homebrew users can use 'brew install node'.
       requirejs.config.source_dir.mkpath
       logger.info "Preparing source files for r.js in #{requirejs.config.source_dir}"
 
-      original_js_compressor = requirejs.env.js_compressor
-      requirejs.env.js_compressor = false
-
-      # js_compressor = Sprockets::Rails::Helper.assets.js_compressor
-      # js_compressor = Rails.application.config.assets.js_compressor
-      # sprockets_js_compressor = js_compressor
-      # puts sprockets_js_compressor
+      original_js_compressor = requirejs.sprockets.js_compressor
+      requirejs.sprockets.js_compressor = false
 
       original_cache = requirejs.env.cache
       requirejs.env.cache = nil
@@ -114,8 +109,6 @@ OS X Homebrew users can use 'brew install node'.
 
           if !m
             logger.info "Preparing #{asset_logical_path}"
-            # Sprockets::Rails::Helper.assets.js_compressor = Rails.application.config.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
-            # Rails.application.config.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
             asset = requirejs.env.find_asset(logical_path)
 
             if asset
@@ -146,8 +139,6 @@ OS X Homebrew users can use 'brew install node'.
               m = ::Requirejs::Rails::Config::BOWER_PATH_PATTERN.match(asset_logical_path)
               if !m
                 logger.info "Preparing #{asset_logical_path}"
-                # Sprockets::Rails::Helper.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
-                # Rails.application.config.assets.js_compressor = requirejs.config.asset_precompiled?(asset_logical_path, asset_logical_path) ? js_compressor : false
                 target_file = requirejs.config.source_dir.join(asset_logical_path)
                 puts "Copying js file #{target_file}"
                 asset.write_to(target_file)
@@ -162,12 +153,9 @@ OS X Homebrew users can use 'brew install node'.
           end
         end
       end
-      # Revert to original js_compressor so Sprokets can use it
-      # Sprockets::Rails::Helper.assets.js_compressor = js_compressor
-      # Rails.application.config.assets.js_compressor = js_compressor
 
       # Restore the original JS compressor and cache.
-      requirejs.env.js_compressor = original_js_compressor
+      requirejs.sprockets.js_compressor = original_js_compressor
       requirejs.env.cache = original_cache
     end
 
