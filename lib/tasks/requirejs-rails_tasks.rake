@@ -193,9 +193,8 @@ OS X Homebrew users can use 'brew install node'.
           asset_name = "#{paths[module_name]}.js"
         end
 
-        # Old Sprockets 2
         # asset = requirejs.env.find_asset(asset_name)
-        asset = requirejs.sprockets.find_asset(asset_name)
+
         built_asset_path = requirejs.config.build_dir.join(asset_name)
 
         # Compute the digest based on the contents of the compiled file, *not* on the contents of the RequireJS module.
@@ -232,6 +231,7 @@ OS X Homebrew users can use 'brew install node'.
         if requirejs.config.build_config['generateSourceMaps']
           FileUtils.cp "#{built_asset_path}.map", "#{non_digest_asset_path}.map"
         end
+
         requirejs.config.manifest_path.open('wb') do |f|
           YAML.dump(requirejs.manifest, f)
         end
