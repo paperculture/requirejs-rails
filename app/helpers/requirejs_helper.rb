@@ -37,8 +37,6 @@ module RequirejsHelper
       end]) \
         if block
 
-      html.concat(content_tag(:script, "", rjs_attributes))
-
       unless requirejs.run_config.empty?
         run_config = requirejs.run_config.dup
 
@@ -89,13 +87,18 @@ module RequirejsHelper
         end
 
         html.concat(content_tag(:script) do
-          script = "require.config(#{run_config_json});"
+          script = "var require = #{run_config_json};"
 
-          # Pass an array to `require`, since it's a top-level module about to be loaded asynchronously (see
-          # `http://requirejs.org/docs/errors.html#notloaded`).
-          script.concat(" require([#{name.dump}]);") \
+          script.html_safe
+        end)
+
+        html.concat(content_tag(:script, "", rjs_attributes))
+
+        # Pass an array to `require`, since it's a top-level module about to be loaded asynchronously (see
+        # `http://requirejs.org/docs/errors.html#notloaded`).
+        html.concat(content_tag(:script) do
+          script = "require([#{name.dump}]);" \
             if name
-
           script.html_safe
         end)
       end
